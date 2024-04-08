@@ -6,8 +6,8 @@ língua portuguesa.
 # Compilação e execução
 
 ```
-	$ make
-	$ ./terminooo
+$ make
+$ ./terminooo
 ```
 
 # Licença
