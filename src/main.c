@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #include <ncurses.h>
 
 #define COLOR_THEREISNOT 1
@@ -11,38 +12,63 @@
 
 #define WARNING_WINDOW_WIDTH 60
 
-#define LIST_SIZE 3154
+#define LIST_SIZE 5087
+#define WORDS_SIZE 2034
 
 #define is_on_list(str) is_on_list_binary(str, 0, LIST_SIZE - 1)
 
-static char list[LIST_SIZE][10];
+static char dictionary[LIST_SIZE][10];
+static char words[WORDS_SIZE][10];
 
 void read_list(void);
+
+int has_five_characters(const char *str);
 
 int is_on_list_binary(const char *str, int start, int end);
 
 void print_with_color(WINDOW *buffer_window, int current_buffer, const char *try, const char *word);
 
 void read_list(void){
-	FILE *file = fopen("palavras.txt", "r");
+	FILE *file = fopen("dicionario.txt", "r");
+
+	if(file == NULL){
+		printf("Failed to open file: dicionario.txt\n");
+		exit(1);
+	}
+
+	for(int i = 0; i < LIST_SIZE; i++){
+		fscanf(file, "%s", dictionary[i]);
+	}
+
+	fclose(file);
+
+	file = fopen("palavras.txt", "r");
 
 	if(file == NULL){
 		printf("Failed to open file: palavras.txt\n");
 		exit(1);
 	}
 
-	for(int i = 0; i < LIST_SIZE; i++){
-		fscanf(file, "%s", list[i]);
+	for(int i = 0; i < WORDS_SIZE; i++){
+		fscanf(file, "%s", words[i]);
 	}
 
 	fclose(file);
+}
+
+int has_five_characters(const char *str){
+	for(int i = 0; i < 5; i++){
+		if(isspace(str[i])) return 0;
+	}
+
+	return 1;
 }
 
 int is_on_list_binary(const char *str, int start, int end){
 	if(start > end) return 0;
 
 	int index = (start + end) / 2;
-	int value = strcmp(str, list[index]);
+	int value = strcmp(str, dictionary[index]);
 
 	if(value == 0){
 		return 1;
@@ -97,7 +123,7 @@ int main(void){
 	srand(time(NULL));
 	read_list();
 
-	char *word_chosen = list[rand() % LIST_SIZE];
+	char *word_chosen = words[rand() % WORDS_SIZE];
 
 	initscr();
 
@@ -160,12 +186,26 @@ int main(void){
 				quit = 1;
 				break;
 
+			case KEY_LEFT:
+				current_character--;
+				if(current_character < 0) current_character = 0;
+				wmove(buffer_window, 1 + current_buffer, 1 + current_character);
+
+				break;
+
+			case KEY_RIGHT:
+				current_character++;
+				if(current_character > 5) current_character = 5;
+				wmove(buffer_window, 1 + current_buffer, 1 + current_character);
+
+				break;
+
 			case '\n':
 				werase(warning_window);
 				box(warning_window, 0, 0);
 
 				if(reset){
-					word_chosen = list[rand() % LIST_SIZE];
+					word_chosen = words[rand() % WORDS_SIZE];
 					reset = 0;
 					current_buffer = 0;
 					current_character = 0;
@@ -176,7 +216,7 @@ int main(void){
 
 					wmove(buffer_window, 1, 1);
 				}
-				else if(current_character == 5){
+				else if(has_five_characters(buffer_try[current_buffer])){
 					if(is_on_list(buffer_try[current_buffer])){
 						print_with_color(buffer_window, current_buffer, buffer_try[current_buffer], word_chosen);
 
