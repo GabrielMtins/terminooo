@@ -30,7 +30,7 @@
 #define WARNING_WINDOW_WIDTH 60
 
 #define LIST_SIZE 5087
-#define WORDS_SIZE 2034
+#define WORDS_SIZE 1753
 
 #define is_on_list(str) is_on_list_binary(str, 0, LIST_SIZE - 1)
 
