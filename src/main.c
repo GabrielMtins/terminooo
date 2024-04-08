@@ -99,10 +99,6 @@ int main(void){
 
 	char *word_chosen = list[rand() % LIST_SIZE];
 
-	for(int i = 0; i < LIST_SIZE; i++){
-		if(!strcmp(list[i], "todos")) word_chosen = list[i];
-	}
-
 	initscr();
 
 	if(has_colors() == FALSE){
