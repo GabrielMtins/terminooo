@@ -21,8 +21,6 @@ void read_list(void);
 
 int is_on_list_binary(const char *str, int start, int end);
 
-int is_on_string(const char *str, int size, char c);
-
 void print_with_color(WINDOW *buffer_window, int current_buffer, const char *try, const char *word);
 
 void read_list(void){
@@ -57,22 +55,23 @@ int is_on_list_binary(const char *str, int start, int end){
 	}
 }
 
-int is_on_string(const char *str, int size, char c){
-	for(int i = 0; i < size; i++){
-		if(c == str[i]) return 1;
+void print_with_color(WINDOW *buffer_window, int current_buffer, const char *try, const char *word){
+	int char_num[26];
+
+	for(int i = 0; i < 26; i++) char_num[i] = 0;
+
+	for(int i = 0; i < 5; i++){
+		char_num[word[i] - 'a']++;
+		char_num[try[i] - 'a']--;
 	}
 
-	return 0;
-}
-
-void print_with_color(WINDOW *buffer_window, int current_buffer, const char *try, const char *word){
 	for(int i = 0; i < 5; i++){
 		wmove(buffer_window, 1 + current_buffer, 1 + i);
 
 		if(try[i] == word[i]){
 			wattron(buffer_window, COLOR_PAIR(COLOR_POSITION_CORRECT));
 		}
-		else if(is_on_string(word, 5, try[i])){
+		else if(char_num[try[i] - 'a'] >= 0){
 			wattron(buffer_window, COLOR_PAIR(COLOR_THEREIS));
 		}
 		else{
@@ -100,6 +99,10 @@ int main(void){
 
 	char *word_chosen = list[rand() % LIST_SIZE];
 
+	for(int i = 0; i < LIST_SIZE; i++){
+		if(!strcmp(list[i], "todos")) word_chosen = list[i];
+	}
+
 	initscr();
 
 	if(has_colors() == FALSE){
@@ -117,7 +120,7 @@ int main(void){
 	init_pair(COLOR_DEFAULT, COLOR_WHITE, COLOR_BLACK);
 
 	noecho();
-	raw();
+	//raw();
 
 	buffer_window = newwin(7, 7, LINES/2 - 3, COLS/2 - 3);
 	warning_window = newwin(3, WARNING_WINDOW_WIDTH, LINES - 4, COLS/2 - WARNING_WINDOW_WIDTH/2 - 1);
@@ -203,14 +206,16 @@ int main(void){
 				break;
 
 			default:
-				if(current_character < 5){
-					mvwaddch(buffer_window, 1 + current_buffer, 1 + current_character, ch);
-					buffer_try[current_buffer][current_character] = ch;
+				if(ch >= 'a' && ch <= 'z'){
+					if(current_character < 5){
+						mvwaddch(buffer_window, 1 + current_buffer, 1 + current_character, ch);
+						buffer_try[current_buffer][current_character] = ch;
+					}
+	
+					current_character++;
+
+					if(current_character > 5) current_character = 5;
 				}
-
-				current_character++;
-
-				if(current_character > 5) current_character = 5;
 
 				break;
 		}
