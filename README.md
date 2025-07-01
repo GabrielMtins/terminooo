@@ -1,7 +1,9 @@
 # Terminooo
 
 Terminooo é um jogo que você deve adivinhar uma palavra de 5 letras da
-língua portuguesa.
+língua portuguesa. 
+
+![jogo](screenshot.png)
 
 # Compilação e execução
 
@@ -12,4 +14,4 @@ $ ./terminooo
 
 # Licença
 
-Esse programa é distribuído sobre a licença GNU GPL v3.
+Esse programa é distribuído sob a licença GNU GPL v3.
